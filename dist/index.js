@@ -62,13 +62,13 @@ function run() {
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
-                    text: "ARE ALL SMOKE GROUPS GREEN?",
+                    text: "GO TO PRODUCTION?",
                     blocks: [
                         {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor}! 🌪️\nPlease verify all smoke groups are green. If not, sort the issue by fixing bugs and re-running the group. Proceed only after that.`,
+                                "text": `Hey ${actor} 👋 Everything looks good! Do you want to go to prod? \nChoose "Go" when you are ready to release to production. Make sure your PR has all required approvals and can be merged. \nIf you choose "Stop" , the pipeline will stop.`,
                             }
                         },
                         {
@@ -88,7 +88,7 @@ function run() {
                                     "text": {
                                         "type": "plain_text",
                                         "emoji": true,
-                                        "text": "Approve"
+                                        "text": "Go"
                                     },
                                     "style": "primary",
                                     "value": "approve",
@@ -99,7 +99,7 @@ function run() {
                                     "text": {
                                         "type": "plain_text",
                                         "emoji": true,
-                                        "text": "Reject"
+                                        "text": "Stop"
                                     },
                                     "style": "danger",
                                     "value": "reject",
