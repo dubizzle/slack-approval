@@ -122,31 +122,33 @@ function run() {
                 var _a, _b, _c;
                 yield ack();
                 console.log(sign_token)
-                try {
-                    const response_blocks = (_a = body.message) === null || _a === void 0 ? void 0 : _a.blocks;
-                    const responseToken = extractTokenFromBlocks(response_blocks); // Extract the token from the response blocks
-                    console.log(`Extracted token: ${responseToken}`); // Log the extracted token
-                    if (responseToken === sign_token) {
-                        response_blocks.pop();
-                        response_blocks.push({
-                            'type': 'section',
-                            'text': {
-                                'type': 'mrkdwn',
-                                'text': `Approved by <@${body.user.id}> `,
-                            },
-                        });
-                        yield client.chat.update({
-                            channel: ((_b = body.channel) === null || _b === void 0 ? void 0 : _b.id) || "",
-                            ts: ((_c = body.message) === null || _c === void 0 ? void 0 : _c.ts) || "",
-                            blocks: response_blocks
-                        });
-                    } else {
-                        console.log('Token does not match. Waiting for another response...');
+                do {
+                    try {
+                        const response_blocks = (_a = body.message) === null || _a === void 0 ? void 0 : _a.blocks;
+                        const responseToken = extractTokenFromBlocks(response_blocks); // Extract the token from the response blocks
+                        console.log(`Extracted token: ${responseToken}`); // Log the extracted token
+                        if (responseToken === sign_token) {
+                            response_blocks.pop();
+                            response_blocks.push({
+                                'type': 'section',
+                                'text': {
+                                    'type': 'mrkdwn',
+                                    'text': `Approved by <@${body.user.id}> `,
+                                },
+                            });
+                            yield client.chat.update({
+                                channel: ((_b = body.channel) === null || _b === void 0 ? void 0 : _b.id) || "",
+                                ts: ((_c = body.message) === null || _c === void 0 ? void 0 : _c.ts) || "",
+                                blocks: response_blocks
+                            });
+                        } else {
+                            console.log('Token does not match. Waiting for another response...');
+                        }
                     }
-                }
-                catch (error) {
-                    logger.error(error);
-                }
+                    catch (error) {
+                        logger.error(error);
+                    }
+                } while (responseToken !== sign_token);
                 process.exit(0);
             }));
             app.action('slack-approval-reject', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
