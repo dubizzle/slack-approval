@@ -44,7 +44,9 @@ const environment = process.env.ENVIRONMENT || "";
 const url = process.env.URL || "";
 const crypto = require('crypto');
 const sign_token = crypto.randomBytes(16).toString('hex');
-const responseToken = "randomtoken"
+let attempts = 0;
+const MAX_ATTEMPTS = 5;
+
 const app = new bolt_1.App({
     token: token,
     signingSecret: signingSecret,
@@ -123,7 +125,7 @@ function run() {
                 var _a, _b, _c;
                 yield ack();
                 console.log(sign_token)
-                do {
+                while (attempts <= MAX_ATTEMPTS) {
                     try {
                         const response_blocks = (_a = body.message) === null || _a === void 0 ? void 0 : _a.blocks;
                         const responseToken = extractTokenFromBlocks(response_blocks); // Extract the token from the response blocks
@@ -142,6 +144,8 @@ function run() {
                                 ts: ((_c = body.message) === null || _c === void 0 ? void 0 : _c.ts) || "",
                                 blocks: response_blocks
                             });
+                            process.exit(0);
+                            return;
                         } else {
                             console.log('Token does not match. Waiting for another response...');
                         }
@@ -149,14 +153,18 @@ function run() {
                     catch (error) {
                         logger.error(error);
                     }
-                } while (responseToken !== sign_token);
-                process.exit(0);
+                    attempts++;
+                }
+                if (attempts > MAX_ATTEMPTS) {
+                    console.log('Maximum number of attempts reached. Token did not match.');
+                    process.exit(1);
+                }
             }));
             app.action('slack-approval-reject', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
                 var _d, _e, _f;
                 yield ack();
                 console.log(sign_token)
-                do {
+                while (attempts <= MAX_ATTEMPTS) {
                     try {
                         const response_blocks = (_d = body.message) === null || _d === void 0 ? void 0 : _d.blocks;
                         const responseToken = extractTokenFromBlocks(response_blocks); // Extract the token from the response blocks
@@ -175,6 +183,8 @@ function run() {
                                 ts: ((_f = body.message) === null || _f === void 0 ? void 0 : _f.ts) || "",
                                 blocks: response_blocks
                             });
+                            process.exit(1);
+                            return;
                         } else {
                             console.log('Token does not match. Waiting for another response...');
                         }
@@ -182,8 +192,12 @@ function run() {
                     catch (error) {
                         logger.error(error);
                     }
-                } while (responseToken !== sign_token);
-                process.exit(1);
+                    attempts++;
+                }
+                if (attempts > MAX_ATTEMPTS) {
+                    console.log('Maximum number of attempts reached. Token did not match.');
+                    process.exit(1);
+                }
             }));
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield app.start(3000);
