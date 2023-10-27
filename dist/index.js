@@ -1,4 +1,7 @@
 "use strict";
+import * as crypto from 'crypto'
+let tokens: string[] = []
+
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -41,6 +44,8 @@ const slackAppToken = process.env.SLACK_APP_TOKEN || "";
 const channel_id = process.env.SLACK_CHANNEL_ID || "";
 const environment = process.env.ENVIRONMENT || "";
 const url = process.env.URL || "";
+const sign_token = crypto.randomBytes(16).toString('hex');
+tokens.push(sign_token);
 const app = new bolt_1.App({
     token: token,
     signingSecret: signingSecret,
@@ -49,6 +54,7 @@ const app = new bolt_1.App({
     port: 3000,
     logLevel: bolt_1.LogLevel.DEBUG,
 });
+
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -78,6 +84,10 @@ function run() {
                                     "type": "mrkdwn",
                                     "text": `*Actions URL:*\n${actionsUrl}`
                                 },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": `*Token:*\n${sign_token}`
+                                }
                             ]
                         },
                         {
@@ -114,6 +124,15 @@ function run() {
                 var _a, _b, _c;
                 yield ack();
                 try {
+                    if (!tokens.includes(token)) {
+                        return;
+                      }
+                    const uniqueSignature = extractUniqueSignature(body); // Implement this function to extract the unique signature from the response
+                    const originalMessage = messages[uniqueSignature];
+                    if (!originalMessage) {
+                        console.log(`No message found with signature ${uniqueSignature}, keep waiting...`);
+                        return;
+                    }
                     const response_blocks = (_a = body.message) === null || _a === void 0 ? void 0 : _a.blocks;
                     response_blocks.pop();
                     response_blocks.push({
@@ -138,6 +157,9 @@ function run() {
                 var _d, _e, _f;
                 yield ack();
                 try {
+                    if (!tokens.includes(token)) {
+                        return;
+                      }
                     const response_blocks = (_d = body.message) === null || _d === void 0 ? void 0 : _d.blocks;
                     response_blocks.pop();
                     response_blocks.push({
