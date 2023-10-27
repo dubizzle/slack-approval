@@ -44,6 +44,7 @@ const environment = process.env.ENVIRONMENT || "";
 const url = process.env.URL || "";
 const crypto = require('crypto');
 const sign_token = crypto.randomBytes(16).toString('hex');
+const responseToken = "randomtoken"
 const app = new bolt_1.App({
     token: token,
     signingSecret: signingSecret,
@@ -155,31 +156,33 @@ function run() {
                 var _d, _e, _f;
                 yield ack();
                 console.log(sign_token)
-                try {
-                    const response_blocks = (_d = body.message) === null || _d === void 0 ? void 0 : _d.blocks;
-                    const responseToken = extractTokenFromBlocks(response_blocks); // Extract the token from the response blocks
-                    console.log(`Extracted token: ${responseToken}`); // Log the extracted token
-                    if (responseToken === sign_token) {
-                        response_blocks.pop();
-                        response_blocks.push({
-                            'type': 'section',
-                            'text': {
-                                'type': 'mrkdwn',
-                                'text': `Rejected by <@${body.user.id}>`,
-                            },
-                        });
-                        yield client.chat.update({
-                            channel: ((_e = body.channel) === null || _e === void 0 ? void 0 : _e.id) || "",
-                            ts: ((_f = body.message) === null || _f === void 0 ? void 0 : _f.ts) || "",
-                            blocks: response_blocks
-                        });
-                    } else {
-                        console.log('Token does not match. Waiting for another response...');
+                do {
+                    try {
+                        const response_blocks = (_d = body.message) === null || _d === void 0 ? void 0 : _d.blocks;
+                        const responseToken = extractTokenFromBlocks(response_blocks); // Extract the token from the response blocks
+                        console.log(`Extracted token: ${responseToken}`); // Log the extracted token
+                        if (responseToken === sign_token) {
+                            response_blocks.pop();
+                            response_blocks.push({
+                                'type': 'section',
+                                'text': {
+                                    'type': 'mrkdwn',
+                                    'text': `Rejected by <@${body.user.id}>`,
+                                },
+                            });
+                            yield client.chat.update({
+                                channel: ((_e = body.channel) === null || _e === void 0 ? void 0 : _e.id) || "",
+                                ts: ((_f = body.message) === null || _f === void 0 ? void 0 : _f.ts) || "",
+                                blocks: response_blocks
+                            });
+                        } else {
+                            console.log('Token does not match. Waiting for another response...');
+                        }
                     }
-                }
-                catch (error) {
-                    logger.error(error);
-                }
+                    catch (error) {
+                        logger.error(error);
+                    }
+                } while (responseToken !== sign_token);
                 process.exit(1);
             }));
             (() => __awaiter(this, void 0, void 0, function* () {
