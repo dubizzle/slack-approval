@@ -105,8 +105,8 @@ function extractTokenFromBlocks(blocks) {
 
 async function checkForResponse() {
     try {
-        yield app.action(['slack-approval-approve', 'slack-approval-reject'], ({ ack, client, body }) => {
-            ack();
+        app.action(['slack-approval-approve', 'slack-approval-reject'], async ({ ack, client, body }) => {
+            await ack();
             const response_blocks = body.message.blocks;
             const responseToken = extractTokenFromBlocks(response_blocks);
 
