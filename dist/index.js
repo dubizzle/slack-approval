@@ -121,6 +121,7 @@ function run() {
             app.action('slack-approval-approve', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
                 var _a, _b, _c;
                 yield ack();
+                console.log(sign_token)
                 try {
                     const response_blocks = (_a = body.message) === null || _a === void 0 ? void 0 : _a.blocks;
                     const responseToken = extractTokenFromBlocks(response_blocks); // Extract the token from the response blocks
@@ -151,6 +152,7 @@ function run() {
             app.action('slack-approval-reject', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
                 var _d, _e, _f;
                 yield ack();
+                console.log(sign_token)
                 try {
                     const response_blocks = (_d = body.message) === null || _d === void 0 ? void 0 : _d.blocks;
                     const responseToken = extractTokenFromBlocks(response_blocks); // Extract the token from the response blocks
