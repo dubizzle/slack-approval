@@ -1,5 +1,4 @@
 "use strict";
-import * as crypto from 'crypto'
 let tokens: string[] = []
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -44,6 +43,7 @@ const slackAppToken = process.env.SLACK_APP_TOKEN || "";
 const channel_id = process.env.SLACK_CHANNEL_ID || "";
 const environment = process.env.ENVIRONMENT || "";
 const url = process.env.URL || "";
+const crypto = require('crypto');
 const sign_token = crypto.randomBytes(16).toString('hex');
 tokens.push(sign_token);
 const app = new bolt_1.App({
