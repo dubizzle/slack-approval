@@ -58,6 +58,7 @@ async function run() {
                             }
                         ]
                     },
+                    // Add a button block for user response
                     {
                         type: "actions",
                         elements: [
@@ -65,119 +66,101 @@ async function run() {
                                 type: "button",
                                 text: {
                                     type: "plain_text",
-                                    emoji: true,
-                                    text: "Go"
+                                    text: "Approve",
                                 },
                                 style: "primary",
-                                value: "approve",
-                                action_id: "slack-approval-approve"
+                                action_id: "slack-approval-approve",
                             },
                             {
                                 type: "button",
                                 text: {
                                     type: "plain_text",
-                                    emoji: true,
-                                    text: "Stop"
+                                    text: "Reject",
                                 },
                                 style: "danger",
-                                value: "reject",
-                                action_id: "slack-approval-reject"
-                            }
-                        ]
-                    }
-                ]
+                                action_id: "slack-approval-reject",
+                            },
+                        ],
+                    },
+                ],
             });
         }
 
-        sendApprovalMessage();
+        // Function to check for approval response
+        function checkForApprovalResponse() {
+            return new Promise((resolve) => {
+                app.action('slack-approval-approve', async ({ ack, client, body, logger }) => {
+                    await ack();
 
-        function checkForResponse() {
-            checkForApprovalResponse();
-            checkForRejectResponse();
+                    if (waitingForResponse) {
+                        const response_blocks = body.message?.blocks;
+                        const responseToken = extractTokenFromBlocks(response_blocks);
+
+                        if (responseToken === sign_token) {
+                            response_blocks.pop();
+                            response_blocks.push({
+                                type: 'section',
+                                text: {
+                                    type: 'mrkdwn',
+                                    text: `Approved by <@${body.user.id}>`,
+                                },
+                            });
+                            await client.chat.update({
+                                channel: body.channel?.id || "",
+                                ts: body.message?.ts || "",
+                                blocks: response_blocks
+                            });
+                            process.exit(0);
+                        } else {
+                            console.log('Token does not match. Waiting for another response...');
+                            resolve(checkForApprovalResponse());
+                        }
+                    }
+                });
+            });
         }
 
-        checkForResponse();
+        // Function to check for reject response
+        function checkForRejectResponse() {
+            return new Promise((resolve) => {
+                app.action('slack-approval-reject', async ({ ack, client, body, logger }) => {
+                    await ack();
+
+                    if (waitingForResponse) {
+                        const response_blocks = body.message?.blocks;
+                        const responseToken = extractTokenFromBlocks(response_blocks);
+
+                        if (responseToken === sign_token) {
+                            response_blocks.pop();
+                            response_blocks.push({
+                                type: 'section',
+                                text: {
+                                    type: 'mrkdwn',
+                                    text: `Rejected by <@${body.user.id}>`,
+                                },
+                            });
+                            await client.chat.update({
+                                channel: body.channel?.id || "",
+                                ts: body.message?.ts || "",
+                                blocks: response_blocks
+                            });
+                            process.exit(1);
+                        } else {
+                            console.log('Token does not match. Waiting for another response...');
+                            resolve(checkForRejectResponse());
+                        }
+                    }
+                });
+            });
+        }
+
+        // Call the functions to send the approval message and wait for response
+        await sendApprovalMessage();
+        await Promise.race([checkForApprovalResponse(), checkForRejectResponse()]);
     } catch (error) {
-        if (error instanceof Error)
-            core.setFailed(error.message);
+        console.error(error);
+        process.exit(1);
     }
-}
-
-function extractTokenFromBlocks(blocks) {
-    const tokenBlock = blocks.find(block => {
-        return block.type === 'section' && block.fields && block.fields.some(field => field.text.includes('*Token:*'));
-    });
-
-    if (tokenBlock) {
-        const tokenField = tokenBlock.fields.find(field => field.text.includes('*Token:*'));
-        const tokenText = tokenField.text.split('\n')[1];
-        const token = tokenText.trim();
-        return token;
-    }
-
-    return null;
-}
-
-function checkForApprovalResponse() {
-    app.action('slack-approval-approve', async ({ ack, client, body, logger }) => {
-        await ack();
-
-        if (waitingForResponse) {
-            const response_blocks = body.message?.blocks;
-            const responseToken = extractTokenFromBlocks(response_blocks);
-
-            if (responseToken === sign_token) {
-                response_blocks.pop();
-                response_blocks.push({
-                    type: 'section',
-                    text: {
-                        type: 'mrkdwn',
-                        text: `Approved by <@${body.user.id}>`,
-                    },
-                });
-                await client.chat.update({
-                    channel: body.channel?.id || "",
-                    ts: body.message?.ts || "",
-                    blocks: response_blocks
-                });
-                process.exit(0);
-            } else {
-                console.log('Token does not match. Waiting for another response...');
-                checkForApprovalResponse();
-            }
-        }
-    });
-}
-
-function checkForRejectResponse() {
-    app.action('slack-approval-reject', async ({ ack, client, body, logger }) => {
-        await ack();
-
-        if (waitingForResponse) {
-            const response_blocks = body.message?.blocks;
-            const responseToken = extractTokenFromBlocks(response_blocks);
-
-            if (responseToken === sign_token) {
-                response_blocks.pop();
-                response_blocks.push({
-                    type: 'section',
-                    text: {
-                        type: 'mrkdwn',
-                        text: `Rejected by <@${body.user.id}>`,
-                    },
-                });
-                await client.chat.update({
-                    channel: body.channel?.id || "",
-                    ts: body.message?.ts || "",
-                    blocks: response_blocks
-                });
-                process.exit(1);
-            } else {
-                console.log('Token does not match. Waiting for another response...');
-                checkForRejectResponse();
-            }
-        }
-    });
 }
 
 run();
