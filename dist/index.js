@@ -133,6 +133,8 @@ function run() {
             }))();
             app.action('slack-approval-approve', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
                 var _a, _b, _c;
+                console.log('body.message:', body.message);
+                console.log('body.message.blocks[2].text:', body.message.blocks[2].text);
                 const text = body.message.blocks[2].text.text; // Get the text containing the unique token from the message
 
                 if (!isUniqueTokenValid(text)) {
