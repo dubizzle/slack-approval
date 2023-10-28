@@ -144,62 +144,67 @@ function run() {
                 }
             }
             
-            app.action('slack-approval-approve', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
-                yield ack();
-                handleResponse(body, (approved) => {
-                    if (approved) {
-                        try {
-                            const response_blocks = (_a = body.message) === null || _a === void 0 ? void 0 : _a.blocks;
-                            response_blocks.pop();
-                            response_blocks.push({
-                                'type': 'section',
-                                'text': {
-                                    'type': 'mrkdwn',
-                                    'text': `Approved by <@${body.user.id}> `,
-                                },
-                            });
-                            yield client.chat.update({
-                                channel: ((_b = body.channel) === null || _b === void 0 ? void 0 : _b.id) || "",
-                                ts: ((_c = body.message) === null || _c === void 0 ? void 0 : _c.ts) || "",
-                                blocks: response_blocks
-                            });
+            app.action('slack-approval-approve', ({ ack, client, body, logger }) => {
+                (async () => {
+                    await ack();
+                    handleResponse(body, (approved) => {
+                        if (approved) {
+                            try {
+                                const response_blocks = body.message.blocks;
+                                response_blocks.pop();
+                                response_blocks.push({
+                                    'type': 'section',
+                                    'text': {
+                                        'type': 'mrkdwn',
+                                        'text': `Approved by <@${body.user.id}>`,
+                                    },
+                                });
+            
+                                yield client.chat.update({
+                                    channel: body.channel.id,
+                                    ts: body.message.ts,
+                                    blocks: response_blocks,
+                                });
+            
+                                process.exit(0);
+                            } catch (error) {
+                                logger.error(error);
+                            }
                         }
-                        catch (error) {
-                            logger.error(error);
+                    });
+                })();
+            });
+            
+            app.action('slack-approval-reject', ({ ack, client, body, logger }) => {
+                (async () => {
+                    await ack();
+                    handleResponse(body, (rejected) => {
+                        if (rejected) {
+                            try {
+                                const response_blocks = body.message.blocks;
+                                response_blocks.pop();
+                                response_blocks.push({
+                                    'type': 'section',
+                                    'text': {
+                                        'type': 'mrkdwn',
+                                        'text': `Rejected by <@${body.user.id}>`,
+                                    },
+                                });
+            
+                                yield client.chat.update({
+                                    channel: body.channel.id,
+                                    ts: body.message.ts,
+                                    blocks: response_blocks,
+                                });
+            
+                                process.exit(1);
+                            } catch (error) {
+                                logger.error(error);
+                            }
                         }
-                        process.exit(0);
-                    }
-                });
-                process.exit(0);
-            }));
-            app.action('slack-approval-reject', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
-                yield ack();
-                handleResponse(body, (rejected) => {
-                    if (rejected) {
-                        try {
-                            const response_blocks = (_d = body.message) === null || _d === void 0 ? void 0 : _d.blocks;
-                            response_blocks.pop();
-                            response_blocks.push({
-                                'type': 'section',
-                                'text': {
-                                    'type': 'mrkdwn',
-                                    'text': `Rejected by <@${body.user.id}>`,
-                                },
-                            });
-                            yield client.chat.update({
-                                channel: ((_e = body.channel) === null || _e === void 0 ? void 0 : _e.id) || "",
-                                ts: ((_f = body.message) === null || _f === void 0 ? void 0 : _f.ts) || "",
-                                blocks: response_blocks
-                            });
-                        }
-                        catch (error) {
-                            logger.error(error);
-                        }
-                        process.exit(1);
-                    }
-                });
-                process.exit(1);
-            }));
+                    });
+                })();
+            });
             
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield app.start(3000);
