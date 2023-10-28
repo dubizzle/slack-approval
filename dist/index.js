@@ -39,8 +39,7 @@ const token = process.env.SLACK_BOT_TOKEN || "";
 const signingSecret = process.env.SLACK_SIGNING_SECRET || "";
 const slackAppToken = process.env.SLACK_APP_TOKEN || "";
 const channel_id = process.env.SLACK_CHANNEL_ID || "";
-const environment = process.env.ENVIRONMENT || "";
-const url = process.env.URL || "";
+const uniqueToken = generateRandomToken();
 const app = new bolt_1.App({
     token: token,
     signingSecret: signingSecret,
@@ -53,8 +52,6 @@ const app = new bolt_1.App({
 function generateRandomToken() {
     return Math.random().toString(36).substring(2, 10); // Generate a random alphanumeric token
 }
-
-const uniqueToken = generateRandomToken();
 
 function isUniqueTokenValid(text) {
     return text === `Unique Token: ${uniqueToken}`;
@@ -133,13 +130,12 @@ function run() {
             }))();
             app.action('slack-approval-approve', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
                 var _a, _b, _c;
-                console.log('body.message:', body.message);
                 const elements = body.message.blocks[2].elements; // Get the elements array from block 2
                 console.log('body.message.blocks[2].elements', elements);
-                const text = elements[0].text; // Get the text containing the unique token from the elements array
-                console.log(text)
-                if (!isUniqueTokenValid(text)) {
-                    console.log('Ignoring response with an invalid unique token');
+                const retrieved_token = elements[0].text; // Get the text containing the unique token from the elements array
+                console.log(retrieved_token)
+                if (!isUniqueTokenValid(retrieved_token)) {
+                    console.log('Ignoring response because retrieved unique token does not match expected token:', uniqueToken);
                     return ack(); // Acknowledge the action without further processing
                 }
 
@@ -167,10 +163,12 @@ function run() {
             }));
             app.action('slack-approval-reject', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
                 var _d, _e, _f;
-                const text = body.message.blocks[2].text.text; // Get the text containing the unique token from the message
-
-                if (!isUniqueTokenValid(text)) {
-                    console.log('Ignoring response with an invalid unique token');
+                const elements = body.message.blocks[2].elements; // Get the elements array from block 2
+                console.log('body.message.blocks[2].elements', elements);
+                const retrieved_token = elements[0].text; // Get the text containing the unique token from the elements array
+                console.log(retrieved_token)
+                if (!isUniqueTokenValid(retrieved_token)) {
+                    console.log('Ignoring response because retrieved unique token does not match expected token:', uniqueToken);
                     return ack(); // Acknowledge the action without further processing
                 }
 
