@@ -3,7 +3,7 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
     if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-        desc = { enumerable: true, get: function() { return m[k]; } };
+      desc = { enumerable: true, get: function() { return m[k]; } };
     }
     Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
@@ -30,7 +30,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-}
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const bolt_1 = require("@slack/bolt");
@@ -55,6 +55,11 @@ function generateRandomToken() {
 }
 
 const uniqueToken = generateRandomToken();
+
+function isUniqueTokenValid(text) {
+    return text === `Unique Token: ${uniqueToken}`;
+}
+
 
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -126,86 +131,68 @@ function run() {
                     ]
                 });
             }))();
-            
-            function handleResponse(body, callback) {
-                const responseToken = body.actions[0].action_id; // Get the response token
-                const userProvidedToken = body.message.blocks[2].elements[0].text; // Get the user-provided token
-            
-                if (userProvidedToken === `Unique Token: ${uniqueToken}`) {
-                    if (responseToken === "slack-approval-approve") {
-                        // Handle the "Go" action
-                        callback(true);
-                    } else if (responseToken === "slack-approval-reject") {
-                        // Handle the "Stop" action
-                        callback(true);
-                    }
-                } else {
-                    console.log('Invalid unique token. Ignoring the response.');
+            app.action('slack-approval-approve', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
+                var _a, _b, _c;
+                const text = body.message.blocks[2].text.text; // Get the text containing the unique token from the message
+
+                if (!isUniqueTokenValid(text)) {
+                    console.log('Ignoring response with an invalid unique token');
+                    return ack(); // Acknowledge the action without further processing
                 }
-            }
-            
-            app.action('slack-approval-approve', ({ ack, client, body, logger }) => {
-                (async () => {
-                    await ack();
-                    handleResponse(body, (approved) => {
-                        if (approved) {
-                            try {
-                                const response_blocks = body.message.blocks;
-                                response_blocks.pop();
-                                response_blocks.push({
-                                    'type': 'section',
-                                    'text': {
-                                        'type': 'mrkdwn',
-                                        'text': `Approved by <@${body.user.id}>`,
-                                    },
-                                });
-            
-                                yield client.chat.update({
-                                    channel: body.channel.id,
-                                    ts: body.message.ts,
-                                    blocks: response_blocks,
-                                });
-            
-                                process.exit(0);
-                            } catch (error) {
-                                logger.error(error);
-                            }
-                        }
+
+                yield ack();
+                try {
+                    const response_blocks = (_a = body.message) === null || _a === void 0 ? void 0 : _a.blocks;
+                    response_blocks.pop();
+                    response_blocks.push({
+                        'type': 'section',
+                        'text': {
+                            'type': 'mrkdwn',
+                            'text': `Approved by <@${body.user.id}> `,
+                        },
                     });
-                })();
-            });
-            
-            app.action('slack-approval-reject', ({ ack, client, body, logger }) => {
-                (async () => {
-                    await ack();
-                    handleResponse(body, (rejected) => {
-                        if (rejected) {
-                            try {
-                                const response_blocks = body.message.blocks;
-                                response_blocks.pop();
-                                response_blocks.push({
-                                    'type': 'section',
-                                    'text': {
-                                        'type': 'mrkdwn',
-                                        'text': `Rejected by <@${body.user.id}>`,
-                                    },
-                                });
-            
-                                yield client.chat.update({
-                                    channel: body.channel.id,
-                                    ts: body.message.ts,
-                                    blocks: response_blocks,
-                                });
-            
-                                process.exit(1);
-                            } catch (error) {
-                                logger.error(error);
-                            }
-                        }
+                    yield client.chat.update({
+                        channel: ((_b = body.channel) === null || _b === void 0 ? void 0 : _b.id) || "",
+                        ts: ((_c = body.message) === null || _c === void 0 ? void 0 : _c.ts) || "",
+                        blocks: response_blocks
                     });
-                })();
-            });
-            
+                }
+                catch (error) {
+                    logger.error(error);
+                }
+                process.exit(0);
+            }));
+            app.action('slack-approval-reject', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
+                var _d, _e, _f;
+                const text = body.message.blocks[2].text.text; // Get the text containing the unique token from the message
+
+                if (!isUniqueTokenValid(text)) {
+                    console.log('Ignoring response with an invalid unique token');
+                    return ack(); // Acknowledge the action without further processing
+                }
+
+                yield ack();
+                try {
+                    const response_blocks = (_d = body.message) === null || _d === void 0 ? void 0 : _d.blocks;
+                    response_blocks.pop();
+                    response_blocks.push({
+                        'type': 'section',
+                        'text': {
+                            'type': 'mrkdwn',
+                            'text': `Rejected by <@${body.user.id}>`,
+                        },
+                    });
+                    yield client.chat.update({
+                        channel: ((_e = body.channel) === null || _e === void 0 ? void 0 : _e.id) || "",
+                        ts: ((_f = body.message) === null || _f === void 0 ? void 0 : _f.ts) || "",
+                        blocks: response_blocks
+                    });
+                }
+                catch (error) {
+                    logger.error(error);
+                }
+                process.exit(1);
+            }));
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield app.start(3000);
                 console.log('Waiting Approval reaction.....');
