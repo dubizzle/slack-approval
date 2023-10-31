@@ -39,8 +39,7 @@ const token = process.env.SLACK_BOT_TOKEN || "";
 const signingSecret = process.env.SLACK_SIGNING_SECRET || "";
 const slackAppToken = process.env.SLACK_APP_TOKEN || "";
 const channel_id = process.env.SLACK_CHANNEL_ID || "";
-const environment = process.env.ENVIRONMENT || "";
-const url = process.env.URL || "";
+const uniqueToken = generateRandomToken();
 const app = new bolt_1.App({
     token: token,
     signingSecret: signingSecret,
@@ -49,6 +48,16 @@ const app = new bolt_1.App({
     port: 3000,
     logLevel: bolt_1.LogLevel.DEBUG,
 });
+
+function generateRandomToken() {
+    return Math.random().toString(36).substring(2, 10); // Generate a random alphanumeric token
+}
+
+function isUniqueTokenValid(text) {
+    return text === `Unique Token: ${uniqueToken}`;
+}
+
+
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -79,6 +88,15 @@ function run() {
                                     "text": `*Actions URL:*\n${actionsUrl}`
                                 },
                             ]
+                        },
+                        {
+                            "type": "context",
+                            "elements": [
+                                {
+                                    "type": "mrkdwn",
+                                    "text": `Unique Token: ${uniqueToken}`, // Include the unique token
+                                },
+                            ],
                         },
                         {
                             "type": "actions",
@@ -112,6 +130,15 @@ function run() {
             }))();
             app.action('slack-approval-approve', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
                 var _a, _b, _c;
+                const elements = body.message.blocks[2].elements; // Get the elements array from block 2
+                console.log('body.message.blocks[2].elements', elements);
+                const retrieved_token = elements[0].text; // Get the text containing the unique token from the elements array
+                console.log(retrieved_token)
+                if (!isUniqueTokenValid(retrieved_token)) {
+                    console.log('Ignoring response because retrieved unique token does not match expected token:', uniqueToken);
+                    return ack(); // Acknowledge the action without further processing
+                }
+
                 yield ack();
                 try {
                     const response_blocks = (_a = body.message) === null || _a === void 0 ? void 0 : _a.blocks;
@@ -136,6 +163,15 @@ function run() {
             }));
             app.action('slack-approval-reject', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
                 var _d, _e, _f;
+                const elements = body.message.blocks[2].elements; // Get the elements array from block 2
+                console.log('body.message.blocks[2].elements', elements);
+                const retrieved_token = elements[0].text; // Get the text containing the unique token from the elements array
+                console.log(retrieved_token)
+                if (!isUniqueTokenValid(retrieved_token)) {
+                    console.log('Ignoring response because retrieved unique token does not match expected token:', uniqueToken);
+                    return ack(); // Acknowledge the action without further processing
+                }
+
                 yield ack();
                 try {
                     const response_blocks = (_d = body.message) === null || _d === void 0 ? void 0 : _d.blocks;
