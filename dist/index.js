@@ -67,6 +67,7 @@ function run() {
             const actionsUrl = `${github_server_url}/${github_repos}/actions/runs/${run_id}`;
             const runnerOS = process.env.RUNNER_OS || "";
             const actor = process.env.USER_NAME || "";
+            const environment = process.env.ENV || "";
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
@@ -76,7 +77,7 @@ function run() {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor} 👋 Everything looks good! Do you want to go to prod? \nChoose "Go" when you are ready to release to production. Make sure your PR has all required approvals and can be merged. \nIf you choose "Stop" , the pipeline will stop.`,
+                                "text": `Hey ${actor} 👋 Your AWS Secret Manager changes has been updated on ${environment} 🎉 \nChoose "Go" when you are ready to restart related rollouts and deployments. \nIf you choose "Stop", the pipeline will stop.`,
                             }
                         },
                         {
