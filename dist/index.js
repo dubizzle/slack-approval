@@ -68,6 +68,7 @@ function run() {
             const runnerOS = process.env.RUNNER_OS || "";
             const actor = process.env.USER_NAME || "";
             const environment = process.env.ENV || "";
+            const service = process.env.SERVICE_NAME || "";
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
@@ -77,7 +78,7 @@ function run() {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor} 👋 Your AWS Secret Manager changes has been updated on ${environment} 🎉 \nChoose "Go" when you are ready to restart related rollouts and deployments. \nIf you choose "Stop", the pipeline will stop.`,
+                                "text": `Hey ${actor} 👋 Your AWS Secret Manager changes for ${service} has been updated on ${environment} 🎉 \nChoose "Go" when you are ready to restart related rollouts and deployments. \nIf you choose "Stop", the pipeline will stop.`,
                             }
                         },
                         {
