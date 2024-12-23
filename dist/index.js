@@ -76,7 +76,7 @@ function run() {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor} 👋 Everything looks good! Do you want to go to prod? \nChoose "Go" when you are ready to release to production. Make sure your PR has all required approvals and can be merged. \nIf you choose "Stop" , the pipeline will stop.`,
+                                "text": `Hey ${actor} 👋 Do you want to apply the terraform changes? \nChoose "Go" when you are ready to apply changes. Make sure you have checked the terragrunt plan output. \nIf you choose "Stop", the pipeline will stop.`,
                             }
                         },
                         {
