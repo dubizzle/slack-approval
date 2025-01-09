@@ -97,7 +97,7 @@ function run() {
                                     "text": {
                                         "type": "plain_text",
                                         "emoji": true,
-                                        "text": "Run only failed tests"
+                                        "text": "Rerun only failed tests"
                                     },
                                     "style": "primary",
                                     "value": "option_1",
@@ -108,10 +108,10 @@ function run() {
                                     "text": {
                                         "type": "plain_text",
                                         "emoji": true,
-                                        "text": "2"
+                                        "text": "Rerun all tests"
                                     },
                                     "style": "primary",
-                                    "value": "Run all tests",
+                                    "value": "option_2",
                                     "action_id": "slack-option-2"
                                 }
                             ]
