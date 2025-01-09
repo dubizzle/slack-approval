@@ -35,7 +35,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const bolt_1 = require("@slack/bolt");
 const web_api_1 = require("@slack/web-api");
-const core = require('@actions/core');
 const token = process.env.SLACK_BOT_TOKEN || "";
 const signingSecret = process.env.SLACK_SIGNING_SECRET || "";
 const slackAppToken = process.env.SLACK_APP_TOKEN || "";
