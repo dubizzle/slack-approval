@@ -67,6 +67,7 @@ function run() {
             const actionsUrl = `${github_server_url}/${github_repos}/actions/runs/${run_id}`;
             const runnerOS = process.env.RUNNER_OS || "";
             const actor = process.env.USER_NAME || "";
+            const failed_tests = process.env.FAILED_TESTS || "";
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
@@ -76,7 +77,7 @@ function run() {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor} 👋 Choose one of the following options:`
+                                "text": `Hey ${actor} 👋 Do you want to rerun the whole test suit or only the failed tests which are: ${failed_tests}? \nChoose one of the following options:`
                             }
                         },
                         {
@@ -96,7 +97,7 @@ function run() {
                                     "text": {
                                         "type": "plain_text",
                                         "emoji": true,
-                                        "text": "1"
+                                        "text": "Run only failed tests"
                                     },
                                     "style": "primary",
                                     "value": "option_1",
@@ -109,8 +110,8 @@ function run() {
                                         "emoji": true,
                                         "text": "2"
                                     },
-                                    "style": "danger",
-                                    "value": "option_2",
+                                    "style": "default",
+                                    "value": "Run all tests",
                                     "action_id": "slack-option-2"
                                 }
                             ]
