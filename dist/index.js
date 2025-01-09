@@ -35,6 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const bolt_1 = require("@slack/bolt");
 const web_api_1 = require("@slack/web-api");
+const core = require('@actions/core');
 const token = process.env.SLACK_BOT_TOKEN || "";
 const signingSecret = process.env.SLACK_SIGNING_SECRET || "";
 const slackAppToken = process.env.SLACK_APP_TOKEN || "";
@@ -76,26 +77,17 @@ function run() {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor} 👋 Do you want to apply the terraform changes? \nChoose "Go" when you are ready to apply changes. Make sure you have checked the terragrunt plan output. \nIf you choose "Stop", the pipeline will stop.`,
+                                "text": `Hey ${actor} 👋 Choose one of the following options:`
                             }
-                        },
-                        {
-                            "type": "section",
-                            "fields": [
-                                {
-                                    "type": "mrkdwn",
-                                    "text": `*Actions URL:*\n${actionsUrl}`
-                                },
-                            ]
                         },
                         {
                             "type": "context",
                             "elements": [
                                 {
                                     "type": "mrkdwn",
-                                    "text": `Unique Token: ${uniqueToken}`, // Include the unique token
-                                },
-                            ],
+                                    "text": `Unique Token: ${uniqueToken}` // Include the unique token
+                                }
+                            ]
                         },
                         {
                             "type": "actions",
@@ -105,91 +97,70 @@ function run() {
                                     "text": {
                                         "type": "plain_text",
                                         "emoji": true,
-                                        "text": "Go"
+                                        "text": "1"
                                     },
                                     "style": "primary",
-                                    "value": "approve",
-                                    "action_id": "slack-approval-approve"
+                                    "value": "option_1",
+                                    "action_id": "slack-option-1"
                                 },
                                 {
                                     "type": "button",
                                     "text": {
                                         "type": "plain_text",
                                         "emoji": true,
-                                        "text": "Stop"
+                                        "text": "2"
                                     },
                                     "style": "danger",
-                                    "value": "reject",
-                                    "action_id": "slack-approval-reject"
+                                    "value": "option_2",
+                                    "action_id": "slack-option-2"
                                 }
                             ]
                         }
                     ]
                 });
             }))();
-            app.action('slack-approval-approve', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
-                var _a, _b, _c;
-                const elements = body.message.blocks[2].elements; // Get the elements array from block 2
-                console.log('body.message.blocks[2].elements', elements);
-                const retrieved_token = elements[0].text; // Get the text containing the unique token from the elements array
-                console.log(retrieved_token)
+            app.action('slack-option-1', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
+                const elements = body.message.blocks[1].elements;
+                const retrieved_token = elements[0].text;
                 if (!isUniqueTokenValid(retrieved_token)) {
-                    console.log('Ignoring response because retrieved unique token does not match expected token:', uniqueToken);
-                    return ack(); // Acknowledge the action without further processing
+                    console.log('Invalid token:', uniqueToken);
+                    return ack();
                 }
                 yield ack();
                 try {
-                    const response_blocks = (_a = body.message) === null || _a === void 0 ? void 0 : _a.blocks;
-                    response_blocks.pop();
-                    response_blocks.push({
-                        'type': 'section',
-                        'text': {
-                            'type': 'mrkdwn',
-                            'text': `Approved by <@${body.user.id}> `,
-                        },
-                    });
                     yield client.chat.update({
-                        channel: ((_b = body.channel) === null || _b === void 0 ? void 0 : _b.id) || "",
-                        ts: ((_c = body.message) === null || _c === void 0 ? void 0 : _c.ts) || "",
-                        blocks: response_blocks
+                        channel: body.channel.id,
+                        ts: body.message.ts,
+                        text: `Option 1 selected by <@${body.user.id}>`
                     });
-                }
-                catch (error) {
+                    console.log("Option 1 selected.");
+                    core.exportVariable('USER_CHOICE', '1'); // Export USER_CHOICE as 2
+                    process.exit(0);
+                } catch (error) {
                     logger.error(error);
                 }
-                process.exit(0);
             }));
-            app.action('slack-approval-reject', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
-                var _d, _e, _f;
-                const elements = body.message.blocks[2].elements; // Get the elements array from block 2
-                console.log('body.message.blocks[2].elements', elements);
-                const retrieved_token = elements[0].text; // Get the text containing the unique token from the elements array
-                console.log(retrieved_token)
+
+            app.action('slack-option-2', ({ ack, client, body, logger }) => __awaiter(this, void 0, void 0, function* () {
+                const elements = body.message.blocks[1].elements;
+                const retrieved_token = elements[0].text;
                 if (!isUniqueTokenValid(retrieved_token)) {
-                    console.log('Ignoring response because retrieved unique token does not match expected token:', uniqueToken);
-                    return ack(); // Acknowledge the action without further processing
+                    console.log('Invalid token:', uniqueToken);
+                    return ack();
                 }
                 yield ack();
                 try {
-                    const response_blocks = (_d = body.message) === null || _d === void 0 ? void 0 : _d.blocks;
-                    response_blocks.pop();
-                    response_blocks.push({
-                        'type': 'section',
-                        'text': {
-                            'type': 'mrkdwn',
-                            'text': `Rejected by <@${body.user.id}>`,
-                        },
-                    });
                     yield client.chat.update({
-                        channel: ((_e = body.channel) === null || _e === void 0 ? void 0 : _e.id) || "",
-                        ts: ((_f = body.message) === null || _f === void 0 ? void 0 : _f.ts) || "",
-                        blocks: response_blocks
+                        channel: body.channel.id,
+                        ts: body.message.ts,
+                        text: `Option 2 selected by <@${body.user.id}>`
                     });
-                }
-                catch (error) {
+                    console.log("Option 2 selected.");
+                    core.exportVariable('USER_CHOICE', '2'); // Export USER_CHOICE as 2
+                    process.exit(0);
+                } catch (error) {
                     logger.error(error);
                 }
-                process.exit(1);
             }));
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield app.start(3000);
