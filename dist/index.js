@@ -110,7 +110,7 @@ function run() {
                                         "emoji": true,
                                         "text": "2"
                                     },
-                                    "style": "default",
+                                    "style": "primary",
                                     "value": "Run all tests",
                                     "action_id": "slack-option-2"
                                 }
