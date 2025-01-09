@@ -131,10 +131,10 @@ function run() {
                     yield client.chat.update({
                         channel: body.channel.id,
                         ts: body.message.ts,
-                        text: `Option 1 selected by <@${body.user.id}>`
+                        text: `Rerun only failed tests selected by <@${body.user.id}>`
                     });
                     console.log("Option 1 selected.");
-                    core.exportVariable('USER_CHOICE', '1'); // Export USER_CHOICE as 2
+                    core.exportVariable('USER_CHOICE', 'failed'); // Export USER_CHOICE as 2
                     process.exit(0);
                 } catch (error) {
                     logger.error(error);
@@ -153,10 +153,10 @@ function run() {
                     yield client.chat.update({
                         channel: body.channel.id,
                         ts: body.message.ts,
-                        text: `Option 2 selected by <@${body.user.id}>`
+                        text: `Rerun all tests selected by <@${body.user.id}>`
                     });
                     console.log("Option 2 selected.");
-                    core.exportVariable('USER_CHOICE', '2'); // Export USER_CHOICE as 2
+                    core.exportVariable('USER_CHOICE', 'all'); // Export USER_CHOICE as 2
                     process.exit(0);
                 } catch (error) {
                     logger.error(error);
