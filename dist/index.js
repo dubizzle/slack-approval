@@ -68,7 +68,6 @@ function run() {
             const runnerOS = process.env.RUNNER_OS || "";
             const actor = process.env.USER_NAME || "";
             const failed_tests = process.env.FAILED_TESTS || "";
-            const jobURL = process.env.JENKINS_BUILD_URL || "";
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
@@ -78,7 +77,7 @@ function run() {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor} 👋 <${jobURL}|Do you want to rerun the whole test suit or only the failed tests> which are: ${failed_tests}? \nChoose one of the following options: `
+                                "text": `Hey ${actor} 👋 Do you want to rerun the whole test suit or only the failed tests which are: ${failed_tests}? \nChoose one of the following options:`
                             }
                         },
                         {
