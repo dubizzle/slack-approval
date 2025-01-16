@@ -68,7 +68,7 @@ function run() {
             const runnerOS = process.env.RUNNER_OS || "";
             const actor = process.env.USER_NAME || "";
             const failed_tests = process.env.FAILED_TESTS || "";
-            const jobURL = process.env.JOB_URL || "";
+            const jobURL = process.env.JENKINS_BUILD_URL || "";
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
