@@ -77,7 +77,7 @@ function run() {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey <@${actor}> 👋 Everything looks good! Do you want to go to prod? \nChoose "Go" when you are ready to release to production. Make sure your PR has all required approvals and can be merged. \nIf you choose "Stop" , the pipeline will stop.`,
+                                "text": `Hey <@${actor}> 👋 Everything looks good! Do you want to go to prod? \nChoose "Go" when you are ready to release to production. \nIf you choose "Stop", the pipeline will stop.`,
                             }
                         },
                         {
