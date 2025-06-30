@@ -81,7 +81,7 @@ function run() {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor} 👋 Are you sure you want to scale ${scaling_direction} these ASGs for the ${cluster_name}:\n${formattedAsgList}\n\nChoose *Go* to proceed. \nIf you choose *Stop*, the pipeline will terminate.`,
+                                "text": `Hey ${actor} 👋 Are you sure you want to scale ${scaling_direction} these ASGs for the *${cluster_name}*:\n${formattedAsgList}\n\nChoose *Go* to proceed. \nIf you choose *Stop*, the pipeline will terminate.`,
                             }
                         },
                         {
