@@ -76,7 +76,7 @@ function run() {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor} 👋 Everything looks good! Do you want to go to prod? \nChoose "Go" when you are ready to release to production. \nIf you choose "Stop" , the pipeline will stop.`,
+                                "text": `Hey ${actor} 👋 Everything looks good! Do you want to promote deployment to 100%? \nChoose "Go" when you are ready to release to production. \nIf you choose "Stop" , the pipeline will stop.`,
                             }
                         },
                         {
