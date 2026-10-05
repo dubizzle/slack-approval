@@ -62,13 +62,13 @@ function run() {
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
-                    text: "ARE ALL SMOKE GROUPS GREEN?",
+                    text: "Secrets Manager — Approval Required",
                     blocks: [
                         {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor}! 🌪️\nPlease verify all smoke groups are green. If not, sort the issue by fixing bugs and re-running the group. Proceed only after that.`,
+                                "text": `Hey ${actor}! 🔐\nA new key is being requested to be added to AWS Secrets Manager. Please review the job details below and approve or reject this request.`,
                             }
                         },
                         {
