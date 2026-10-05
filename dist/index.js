@@ -68,7 +68,7 @@ function run() {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey ${actor}! 🔐\nA new key is being requested to be added to AWS Secrets Manager. Please review the job details below and approve or reject this request.`,
+                                "text": `Hey Infra Team! 🔐\nA new key is being requested to be added to AWS Secrets Manager. Please review the job details below and approve or reject this request.`,
                             }
                         },
                         {
