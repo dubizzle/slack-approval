@@ -62,13 +62,13 @@ function run() {
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
-                    text: "Secrets Manager — Approval Required",
+                    text: "ConfigMap Manager — Approval Required",
                     blocks: [
                         {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `Hey Infra Team! 🔐\nA new key is being requested to be added to AWS Secrets Manager. Please review the job details below and approve or reject this request.`,
+                                "text": `Hey Infra Team! 🔐\nNew keys are being requested to be added to ConfigMap. Please review the job details below and approve or reject this request.`,
                             }
                         },
                         {
