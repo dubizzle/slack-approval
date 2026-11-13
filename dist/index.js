@@ -59,6 +59,36 @@ function run() {
             const actionsUrl = `${github_server_url}/${github_repos}/actions/runs/${run_id}`;
             const runnerOS = process.env.RUNNER_OS || "";
             const actor = process.env.USER_NAME || "";
+            // Optional context, rendered only when provided by the calling workflow
+            const service = process.env.SERVICE_NAME || "";
+            const namespace = process.env.NAMESPACE || "";
+            const scope = process.env.SCOPE || "";
+            const changes = process.env.CHANGES || "";
+            const fields = [];
+            if (actor)
+                fields.push({ "type": "mrkdwn", "text": `*Requested by:*\n${actor}` });
+            if (service)
+                fields.push({ "type": "mrkdwn", "text": `*Service:*\n\`${service}\`` });
+            if (environment)
+                fields.push({ "type": "mrkdwn", "text": `*Environment:*\n\`${environment}\`` });
+            if (namespace)
+                fields.push({ "type": "mrkdwn", "text": `*Namespace:*\n\`${namespace}\`` });
+            if (scope)
+                fields.push({ "type": "mrkdwn", "text": `*Scope:*\n${scope}` });
+            fields.push({ "type": "mrkdwn", "text": `*Actions URL:*\n${actionsUrl}` });
+            const detailBlocks = [
+                { "type": "section", "fields": fields },
+            ];
+            if (changes) {
+                detailBlocks.push({
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        // Slack section text is capped at 3000 chars
+                        "text": `*Requested changes:*\n\`\`\`${changes.slice(0, 2800)}\`\`\``,
+                    },
+                });
+            }
             (() => __awaiter(this, void 0, void 0, function* () {
                 yield web.chat.postMessage({
                     channel: channel_id,
@@ -71,15 +101,7 @@ function run() {
                                 "text": `Hey Infra Team! 🔐\nNew keys are being requested to be added to ConfigMap. Please review the job details below and approve or reject this request.`,
                             }
                         },
-                        {
-                            "type": "section",
-                            "fields": [
-                                {
-                                    "type": "mrkdwn",
-                                    "text": `*Actions URL:*\n${actionsUrl}`
-                                },
-                            ]
-                        },
+                        ...detailBlocks,
                         {
                             "type": "actions",
                             "elements": [
